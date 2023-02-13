@@ -8,7 +8,7 @@ import itertools
 from src import BiliUser
 
 log = logger.bind(user="B站粉丝牌助手")
-__VERSION__ = "0.3.5"
+__VERSION__ = "0.3.6"
 
 warnings.filterwarnings(
     "ignore",
@@ -20,19 +20,31 @@ try:
         users = json.loads(os.environ.get("USERS"))
     else:
         import yaml
+        import shutil
+
+        if not os.path.exists('users.yaml'):
+            shutil.copy('users.yaml.default', 'users.yaml')
+            assert False, "未找到配置文件，配置文件已重新生成，请编辑 users.yaml"
 
         with open('users.yaml', 'r', encoding='utf-8') as f:
             users = yaml.load(f, Loader=yaml.FullLoader)
+        with open('users.yaml.default', 'r', encoding='utf-8') as fd:
+            users_default = yaml.load(fd, Loader=yaml.FullLoader)
+            if not users.get('CONFIG', {}).get('VERSION', 0) >= users_default.get('CONFIG', {}).get('VERSION', 0):
+                shutil.copy('users.yaml', 'users.yaml.old')
+                shutil.copy('users.yaml.default', 'users.yaml')
+                assert False, "配置文件已更新，旧文件已保存到 users.yaml.old"
+
     assert users['ASYNC'] in [0, 1], "ASYNC参数错误"
     assert users['LIKE_CD'] >= 0, "LIKE_CD参数错误"
-    assert users['SHARE_CD'] >= 0, "SHARE_CD参数错误"
+    # assert users['SHARE_CD'] >= 0, "SHARE_CD参数错误"
     assert users['DANMAKU_CD'] >= 0, "DANMAKU_CD参数错误"
     assert users['WATCHINGLIVE'] >= 0, "WATCHINGLIVE参数错误"
     assert users['WEARMEDAL'] in [0, 1], "WEARMEDAL参数错误"
     config = {
         "ASYNC": users['ASYNC'],
         "LIKE_CD": users['LIKE_CD'],
-        "SHARE_CD": users['SHARE_CD'],
+        # "SHARE_CD": users['SHARE_CD'],
         "DANMAKU_CD": users['DANMAKU_CD'],
         "WATCHINGLIVE": users['WATCHINGLIVE'],
         "WEARMEDAL": users['WEARMEDAL'],
