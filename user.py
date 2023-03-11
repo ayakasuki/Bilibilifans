@@ -3,19 +3,20 @@ import sys
 import os
 import asyncio
 import uuid
-from loguru import logger
+from nonebot.log import logger
 from datetime import datetime, timedelta
+from configs.config import NICKNAME, Config
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-logger.remove()
-logger.add(
-    sys.stdout,
-    colorize=True,
-    format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> <blue> {extra[user]} </blue> <level>{message}</level>",
-    backtrace=True,
-    diagnose=True,
-)
+# logger.remove()
+# logger.add(
+#     sys.stdout,
+#     colorize=True,
+#     format="<green>{time:YYYY-MM-DD HH:mm:ss}</green> <blue> {extra[user]} </blue> <level>{message}</level>",
+#     backtrace=True,
+#     diagnose=True,
+# )
 
 
 class BiliUser:

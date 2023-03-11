@@ -7,9 +7,9 @@ import sys
 import time
 import json
 from typing import Union
-from loguru import logger
+from nonebot.log import logger
 from urllib.parse import urlencode, urlparse
-
+from configs.config import NICKNAME, Config
 
 from aiohttp import ClientSession
 
