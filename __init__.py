@@ -23,6 +23,7 @@ from nonebot.adapters.onebot.v11 import (
 from nonebot.matcher import Matcher
 from nonebot.params import Arg, CommandArg, ArgStr
 from configs.config import NICKNAME, Config
+from utils.utils import get_bot, scheduler
 #from nonebot.plugin import PluginMetadata
 # 定义插件元数据
 
@@ -30,7 +31,7 @@ from configs.config import NICKNAME, Config
 __zx_plugin_name__ = 'B站粉丝牌助手'
 __plugin_usage__ = """
 usage：
-    B站粉丝牌：立即运行-----定时任务出错时备用！\n
+    B站粉丝牌：立即运行-or-定时任务\n
     指令：
     \nB站粉丝牌任务
     """.strip()                   # __plugin_usage__
@@ -43,18 +44,18 @@ __plugin_help_info__ = f'''\
 '''.strip()
 __plugin_settings__ = {
     "level": 5,             # 群权限等级，请不要设置为1或999，若无特殊情况请设置为5
-    "default_status": True,     # 进群时的默认开关状态
-    "limit_superuser": False,   # 开关插件的限制是否限制超级用户
-    "cmd": ["B站粉丝牌任务"],   # 命令别名，主要用于帮助和开关
+    "default_status": False,     # 进群时的默认开关状态
+    "limit_superuser": True,   # 开关插件的限制是否限制超级用户
+    "cmd": ["粉丝牌"],   # 命令别名，主要用于帮助和开关
     "cost_gold": 0,             # 该功能需要花费的金币
 }
 __plugin_type__ = ('工具', 1)
 __plugin_version__ = 1.0
 __plugin_author__ = "今天要来点桃子吗？"
-
+__plugin_task__ = {"bilibili_fans_alc": "B站粉丝牌定时执行"}
 #metadata = PluginMetadata(name=__plugin_name__, usage=__plugin_usage__, description=__plugin_description__, help=__plugin_help_name__ + __plugin_help_info__)
-#plugin_config = Config.parse_obj(get_driver().config.dict())
 
+#plugin_config = Config.parse_obj(get_driver().config.dict())
 #添加元插件初始化配置
 Config.add_plugin_config(
     "Bilibili_fans",
@@ -136,8 +137,35 @@ Config.add_plugin_config(
     help_="应援团签到CD时间,单位秒,默认2秒,设置为0则不签到",
     default_value=2
 )
-
-
+Config.add_plugin_config(
+    "Bilibili_fans",
+    "FANUSERID",
+    0,
+    name="被动执行通知用户QQ号或QQ群号",
+    help_="被动执行通知用户QQ号或QQ群号,设置为0则不通知",
+    default_value= 0
+)
+Config.add_plugin_config(
+    "Bilibili_fans",
+    "bilibili_fans_alc",
+    True,
+    help_="被动 B站粉丝牌任务 默认开关状态",
+    default_value=True,
+)
+Config.add_plugin_config(
+    "Bilibili_fans",
+    "minute",
+    0,
+    help_="定时任务中的时间，单位分钟。默认0分，不能大于等于60",
+    default_value = 0
+)
+Config.add_plugin_config(
+    "Bilibili_fans",
+    "hour",
+    0,
+    help_="定时任务中的时间，单位小时。默认0时，不能大于等于24",
+    default_value = 0
+)
 # 初始赋值，定义命令处理函数
 is_running = False
 # should_stop = False
@@ -149,8 +177,7 @@ async def run_main(bot: Bot, event: MessageEvent, state: T_State):
     if is_running:
         await HGD.finish(f'{NICKNAME}还在看哦！')
     else:
-        global should_stop
-        await bot.send_msg(event, message=f'{NICKNAME}帮忙看直播与提升粉丝牌好感度中！')
+        await bot.send_msg(user_id=event.user_id, message=f'{NICKNAME}帮忙看直播与提升粉丝牌好感度中！')
         is_running = True
         result = await model.HGDBILIBILIFANS()
         is_running = False
@@ -187,3 +214,31 @@ bilibili_fanshelp = on_command('B站粉丝牌帮助', block=True, priority=5)
 async def _(bot: Bot, event: Event):
     await bot.send_msg(event, message= "欢迎使用B站粉丝牌助手！\nB站粉丝牌任务")
 
+FANUSERID = Config.get_config("Bilibili_fans", "FANUSERID")    
+# @scheduler.scheduled_job(
+#     "cron",
+#     hour=3,
+#     minute=3,
+# )
+MINUTE = Config.get_config("Bilibili_fans", "minute")
+HOUR = Config.get_config("Bilibili_fans", "hour")
+@scheduler.scheduled_job(
+    "cron",
+    minute=MINUTE,
+    hour=HOUR,
+)
+async def HGDBILIBILIFANS_ALC():
+    global is_running
+    if is_running:
+        bot = get_bot()
+        await bot.send_msg(user_id=FANUSERID, message=f'{NICKNAME}还在看哦！无法执行今日定时观看！')
+        return
+    # 每日观看
+    bot = get_bot()
+    if bot and Config.get_config("Bilibili_fans","bilibili_fans_alc"):
+        is_running = True
+        alc_msg = await HGDBILIBILIFANS()
+        is_running = False
+        if alc_msg:
+            mes = "[[_task|bilibili_fans_alc]] \n" + alc_msg 
+            await bot.send_msg(user_id=FANUSERID, message="" + mes)

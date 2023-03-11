@@ -13,14 +13,16 @@
 
 * [x] B站粉丝牌任务          --首次执行会直接打开，重复运行会显示BOT真正看！
 
-* [ ] 关闭粉丝牌任务        --手动结束执行函数
+* [ ] 
 
-* [ ] 定时执行助手            --原cron表达式自动每天观看，但在考虑适配zhenxun的apscheduler定时任务插件
+* [x] 定时执行助手            --原cron表达式自动每天观看，但在考虑适配zhenxun的apscheduler定时任务插件
+
+- [ ] 关闭粉丝牌任务 --手动结束执行函数
 - [ ] 多用户适配                --目前仅admin用户单access_key签到，理论支持多用户异步执行，欢迎pr
 
 - [ ] 填入不同用户access_key   --目前access_key尚未支持绑定不同bot的user_id,有机会实现，欢迎pr
-
-
+  
+  
 
 **B站粉丝牌功能实现**
 
@@ -41,7 +43,13 @@
 ### 使用说明
 
 * Access_key (必填)  B站账户鉴权 [鉴权获取方式](https://github.com/XiaoMiku01/fansMedalHelper/releases/tag/logintool)
-* 其他字段移步生成的config注释观看 或 下文原文档
+
+* 在bot根目录下env.dev文件添加以下配置
+  ```APSCHEDULER_CONFIG={"apscheduler.timezone": "Asia/Shanghai"}```（国外自查）
+  以纠正因人而异的BOT时区。
+
+* 其他配置字段，移步zhunxun_bot/configs/config.yaml 注释观看
+
 * 本真寻BOT适配插件为新手重新适配，代码如shit，敬请原谅。同时欢迎pr。
 
 原B站粉丝牌助手 详细文档在这里 👉 [文档](https://xiaomiku01.github.io/fansMedalHelperVersion/)  （配置文件已移入bot/configs/config.yaml）
@@ -65,7 +73,3 @@
 - AW 的 B 站挂机助手 [andywang425/BLTH](https://github.com/andywang425/BLTH)
 
 ---
-
-
-
-

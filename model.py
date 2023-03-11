@@ -35,7 +35,8 @@ try:
     WEARMEDAL = Config.get_config("Bilibili_fans", "WEARMEDAL")
     SIGNINGROUP = Config.get_config("Bilibili_fans", "SIGNINGROUP", 2)
     PROXY = Config.get_config("Bilibili_fans", "PROXY")
-
+    FANUSERID = Config.get_config("Bilibili_fans", "FANUSERID")
+    
     assert ASYNC in [0, 1], "ASYNC参数错误"
     assert LIKE_CD >= 0, "LIKE_CD参数错误"
     assert DANMAKU_CD >= 0, "DANMAKU_CD参数错误"
@@ -104,21 +105,6 @@ async def HGDBILIBILIFANS():
     finally:
         messageList = messageList + list(itertools.chain.from_iterable(await asyncio.gather(*catchMsg)))
     [log.info(message) for message in messageList]
-    await bot.send_msg(user_id=event.user_id, message=f'【B站粉丝牌助手推送】 "  \n".join(messageList)')
+    mes = '【B站粉丝牌助手推送】\n' + '\n'.join(messageList)
+    return mes
     
-# if __name__ == '__main__':
-#     from apscheduler.schedulers.blocking import BlockingScheduler
-#     from apscheduler.triggers.cron import CronTrigger
-
-#     cron = users.get('CRON', None)
-#     if cron:
-#         log.info('使用内置定时器,开启定时任务,等待时间到达后执行')
-#         schedulers = BlockingScheduler()
-#         schedulers.add_job(run, CronTrigger.from_crontab(cron), misfire_grace_time=3600)
-#         schedulers.start()
-#     else:
-#         log.info('外部调用,开启任务')
-#         loop = asyncio.new_event_loop()
-#         asyncio.set_event_loop(loop)
-#         loop.run_until_complete(main())
-#         log.info("任务结束")
