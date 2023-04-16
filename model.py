@@ -53,8 +53,7 @@ try:
     }
 
 except Exception as e:
-    log.error(f"读取配置文件失败,请检查配置文件格式是否正确: {e}")
-    exit(1)
+    log.error(f"读取配置文件失败,请检查配置文件格式是否正确,如果第一次运行可忽略: {e}")
 
 # should_stop = False
 @log.catch
